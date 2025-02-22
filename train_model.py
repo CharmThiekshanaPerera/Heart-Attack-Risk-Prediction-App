@@ -1,9 +1,11 @@
 # train_model.py
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 import joblib
 from sklearn.metrics import accuracy_score
+from sklearn.utils import resample
+from sklearn.preprocessing import StandardScaler
 
 # Step 1: Load the Dataset
 df = pd.read_csv('heart_attack_data.csv')
@@ -60,7 +62,36 @@ y = df['Outcome']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 print("Dataset split into training and testing sets.")
 
-# Step 7: Train a Machine Learning Model
+# Step 7: Handle Imbalanced Data
+print("\nHandling imbalanced data...")
+
+# Separate majority and minority classes
+df_majority = df[df['Outcome'] == 'No Heart Attack']
+df_minority = df[df['Outcome'] == 'Heart Attack']
+
+# Upsample the minority class
+df_minority_upsampled = resample(df_minority, 
+                                 replace=True,     # Sample with replacement
+                                 n_samples=len(df_majority),  # Match majority class size
+                                 random_state=42)
+
+# Combine the majority class with the upsampled minority class
+df_upsampled = pd.concat([df_majority, df_minority_upsampled])
+
+# Check the new class distribution
+print(df_upsampled['Outcome'].value_counts())
+
+# Update X_train and y_train with the upsampled data
+X_train = df_upsampled.drop('Outcome', axis=1)
+y_train = df_upsampled['Outcome']
+
+# Step 8: Scale Numerical Features
+print("\nScaling numerical features...")
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Step 9: Train a Machine Learning Model
 print("\nTraining the Random Forest model...")
 model = RandomForestClassifier(random_state=42)
 model.fit(X_train, y_train)
@@ -70,7 +101,7 @@ print("Model training completed.")
 joblib.dump(model, 'heart_attack_model.pkl')
 print("Model saved as 'heart_attack_model.pkl'.")
 
-# Step 8: Evaluate the Model
+# Step 10: Evaluate the Model
 print("\nEvaluating the model...")
 y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
