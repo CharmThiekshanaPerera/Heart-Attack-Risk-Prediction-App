@@ -1,3 +1,4 @@
+# app.py
 from flask import Flask, render_template, request
 import joblib
 import pandas as pd
@@ -12,7 +13,7 @@ model = joblib.load('heart_attack_model.pkl')
 feature_names = joblib.load('feature_names.pkl')
 
 # Load the scaler
-scaler = StandardScaler()
+scaler = joblib.load('scaler.pkl')
 
 @app.route('/')
 def home():
@@ -58,7 +59,7 @@ def predict():
     input_data = input_data[feature_names]
 
     # Scale the input data
-    input_data_scaled = scaler.fit_transform(input_data)
+    input_data_scaled = scaler.transform(input_data)
 
     # Make prediction
     prediction = model.predict(input_data_scaled)[0]

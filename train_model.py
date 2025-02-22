@@ -1,7 +1,7 @@
 # train_model.py
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 import joblib
 from sklearn.metrics import accuracy_score
 from sklearn.utils import resample
@@ -58,6 +58,11 @@ print("\nSplitting the dataset into features (X) and target (y)...")
 X = df.drop('Outcome', axis=1)
 y = df['Outcome']
 
+# Save the feature names
+feature_names = X.columns.tolist()
+joblib.dump(feature_names, 'feature_names.pkl')
+print("Feature names saved to 'feature_names.pkl'.")
+
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 print("Dataset split into training and testing sets.")
@@ -91,6 +96,10 @@ scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
+# Save the scaler
+joblib.dump(scaler, 'scaler.pkl')
+print("Scaler saved to 'scaler.pkl'.")
+
 # Step 9: Train a Machine Learning Model
 print("\nTraining the Random Forest model...")
 model = RandomForestClassifier(random_state=42)
@@ -106,7 +115,3 @@ print("\nEvaluating the model...")
 y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print(f'Model Accuracy: {accuracy:.2f}')
-
-# Save the feature names
-feature_names = X.columns.tolist()
-joblib.dump(feature_names, 'feature_names.pkl')
