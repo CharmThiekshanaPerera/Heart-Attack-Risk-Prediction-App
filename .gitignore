@@ -1,0 +1,27 @@
+echo "# Python-specific ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# OS-specific ignores
+.DS_Store
+Thumbs.db
+
+# IDE-specific ignores
+.vscode/
+.idea/
+
+# CSV data files (optional, if not tracking data)
+*.csv" > .gitignore
+heart_attack_data.csv
+heart_attack_model.pkl
+heart_attack_data.csv
+heart_attack_model.pkl
