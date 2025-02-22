@@ -1,25 +1,70 @@
-# train_model.py
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from flask import Flask, render_template, request
 import joblib
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
-# Load the dataset
-df = pd.read_csv('heart_attack_data.csv')
+app = Flask(__name__)
 
-# Convert categorical variables (e.g., Gender) to numerical
-df['Gender'] = df['Gender'].map({'Male': 1, 'Female': 0})
+# Load the trained model
+model = joblib.load('heart_attack_model.pkl')
 
-# Define features (X) and target (y)
-X = df.drop('Outcome', axis=1)
-y = df['Outcome']
+# Load the feature names
+feature_names = joblib.load('feature_names.pkl')
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Load the scaler
+scaler = StandardScaler()
 
-# Train a Random Forest model
-model = RandomForestClassifier(random_state=42)
-model.fit(X_train, y_train)
+@app.route('/')
+def home():
+    return render_template('index.html')
 
-# Save the model to a file
-joblib.dump(model, 'heart_attack_model.pkl')
+@app.route('/predict', methods=['POST'])
+def predict():
+    # Get user input from the form
+    age = float(request.form['age'])
+    gender = request.form['gender']
+    cholesterol = float(request.form['cholesterol'])
+    blood_pressure = float(request.form['blood_pressure'])
+    heart_rate = float(request.form['heart_rate'])
+    bmi = float(request.form['bmi'])
+    smoker = int(request.form['smoker'])
+    diabetes = int(request.form['diabetes'])
+    hypertension = int(request.form['hypertension'])
+    family_history = int(request.form['family_history'])
+
+    # Convert gender to numerical
+    gender = 1 if gender == 'Male' else 0
+
+    # Create a DataFrame for prediction
+    input_data = pd.DataFrame({
+        'Age': [age],
+        'Gender': [gender],
+        'Cholesterol': [cholesterol],
+        'BloodPressure': [blood_pressure],
+        'HeartRate': [heart_rate],
+        'BMI': [bmi],
+        'Smoker': [smoker],
+        'Diabetes': [diabetes],
+        'Hypertension': [hypertension],
+        'FamilyHistory': [family_history]
+    })
+
+    # Add missing columns with default values (0)
+    for feature in feature_names:
+        if feature not in input_data.columns:
+            input_data[feature] = 0
+
+    # Reorder columns to match the training data
+    input_data = input_data[feature_names]
+
+    # Scale the input data
+    input_data_scaled = scaler.fit_transform(input_data)
+
+    # Make prediction
+    prediction = model.predict(input_data_scaled)[0]
+    result = 'High Risk of Heart Attack' if prediction == 1 else 'Low Risk of Heart Attack'
+
+    return render_template('index.html', prediction_text=result)
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Attack Risk Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Heart Attack Risk Prediction</h1>
+        <form action="/predict" method="POST">
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+
+            <label for="cholesterol">Cholesterol (mg/dL):</label>
+            <input type="number" id="cholesterol" name="cholesterol" required>
+
+            <label for="blood_pressure">Blood Pressure (mmHg):</label>
+            <input type="number" id="blood_pressure" name="blood_pressure" required>
+
+            <label for="heart_rate">Heart Rate (bpm):</label>
+            <input type="number" id="heart_rate" name="heart_rate" required>
+
+            <label for="bmi">BMI:</label>
+            <input type="number" id="bmi" name="bmi" step="0.1" required>
+
+            <label for="smoker">Smoker (1 for Yes, 0 for No):</label>
+            <input type="number" id="smoker" name="smoker" min="0" max="1" required>
+
+            <label for="diabetes">Diabetes (1 for Yes, 0 for No):</label>
+            <input type="number" id="diabetes" name="diabetes" min="0" max="1" required>
+
+            <label for="hypertension">Hypertension (1 for Yes, 0 for No):</label>
+            <input type="number" id="hypertension" name="hypertension" min="0" max="1" required>
+
+            <label for="family_history">Family History (1 for Yes, 0 for No):</label>
+            <input type="number" id="family_history" name="family_history" min="0" max="1" required>
+
+            <button type="submit">Predict Risk</button>
+        </form>
+
+        {% if prediction_text %}
+        <h2>Prediction: {{ prediction_text }}</h2>
+        {% endif %}
+    </div>
+</body>
+</html>

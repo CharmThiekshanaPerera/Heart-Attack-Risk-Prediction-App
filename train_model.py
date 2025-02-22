@@ -106,3 +106,7 @@ print("\nEvaluating the model...")
 y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print(f'Model Accuracy: {accuracy:.2f}')
+
+# Save the feature names
+feature_names = X.columns.tolist()
+joblib.dump(feature_names, 'feature_names.pkl')
